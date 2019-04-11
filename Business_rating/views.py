@@ -1,4 +1,5 @@
 import coreapi
+import coreschema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.schemas import AutoSchema
@@ -46,7 +47,9 @@ class BusinessDetailsAPI(APIView):
 
 class AddBusinessAPI(APIView):
     def post(self, request):
-
+        """
+           This one is for adding a business
+           """
         name = request.data.get('name')
         address = request.data.get('address')
         phone_number = request.data.get('phone_number')
@@ -67,7 +70,7 @@ class AddBusinessAPI(APIView):
     schema = AutoSchema(
         manual_fields=[
             coreapi.Field("name", True, description="ex: 'Barreka'", example="barreka"),
-            coreapi.Field("address", False, description="ex: 'Centre urbain nord'"),
+            coreapi.Field("address", False, description="ex: 'Centre urbain nord'", schema=coreschema.String()),
             coreapi.Field("phone_number", False, description="ex: '21012345'"),
             coreapi.Field("category", False, description="Must be one of these " + str(get_categories())),
         ]
@@ -88,6 +91,7 @@ class ReviewBusinessAPI(APIView):
         Review.objects.create(stars=stars, comment=comment, business=business, reviewer=reviewer)
         return Response({'success': True, 'message': 'Review successfully created'},
                         status=status.HTTP_201_CREATED)
+
     schema = AutoSchema(
         manual_fields=[
             coreapi.Field("business_id", True, description="1-indexed DB id"),
