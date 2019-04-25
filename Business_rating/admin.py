@@ -2,5 +2,11 @@ from django.contrib import admin
 
 from Business_rating.models import Business, Review
 
-admin.site.register(Business)
+
+class BusinessAdmin(admin.ModelAdmin):
+    readonly_fields = ('id',)
+    list_display = ('name', 'id', 'category')
+
+
+admin.site.register(Business, BusinessAdmin)
 admin.site.register(Review)

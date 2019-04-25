@@ -1,5 +1,9 @@
+import base64
+import os
+
 import coreapi
 import coreschema
+from django.core.files import File
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.schemas import AutoSchema
@@ -49,6 +53,8 @@ class AddBusinessAPI(APIView):
     def post(self, request):
         """
            This one is for adding a business
+           Use the link below to encode image manually:
+                ```https://www.base64-image.de/```
            """
         name = request.data.get('name')
         address = request.data.get('address')
@@ -59,7 +65,21 @@ class AddBusinessAPI(APIView):
             print("Bad request", check['message'])
             return Response({'Error': check['message']}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            Business.objects.create(name=name, address=address, phone_number=phone_number, category=category)
+            business = Business.objects.create(name=name, address=address, phone_number=phone_number, category=category)
+            try:
+                logo = request.data.get('logo')
+                decoded_logo = base64.b64decode(logo)
+                fname = 'tmp/%s.jpg' % name
+                with open(fname, 'wb') as f:
+                    f.write(decoded_logo)
+                imgname = '%s.jpg' % name
+                file = File(open(fname, 'rb'))
+                business.logo.save(imgname, file)
+                os.remove(fname)
+            except Exception as e:
+                print("Error occurred while processing logo, details: %s" % e)
+                pass
+            business.save()
             return Response({'success': True, 'message': 'Business successfully created'},
                             status=status.HTTP_201_CREATED)
         except Exception as e:
@@ -73,6 +93,7 @@ class AddBusinessAPI(APIView):
             coreapi.Field("address", False, description="ex: 'Centre urbain nord'", schema=coreschema.String()),
             coreapi.Field("phone_number", False, description="ex: '21012345'"),
             coreapi.Field("category", False, description="Must be one of these " + str(get_categories())),
+            coreapi.Field("logo", False, description="64 encoded image, use this link to test image encoding manually: https://www.base64-image.de/ "),
         ]
     )
 
