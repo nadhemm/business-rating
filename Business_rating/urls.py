@@ -29,5 +29,6 @@ urlpatterns = [
     path('business-details/', views.BusinessDetailsAPI.as_view(), name='business-details'),
     path('add-business/', views.AddBusinessAPI.as_view(), name='add-business'),
     path('review-business/', views.ReviewBusinessAPI.as_view(), name='review-business'),
+    path('businesses-list/', views.BusinessesListAPI.as_view(), name='businesses-list'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

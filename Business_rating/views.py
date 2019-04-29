@@ -49,6 +49,29 @@ class BusinessDetailsAPI(APIView):
     )
 
 
+class BusinessesListAPI(APIView):
+    def get(self, request):
+        category = request.GET.get('category')
+        if category:
+            businesses = Business.objects.filter(category=category)
+        else:
+            businesses = Business.objects.all()
+        result = [{'name': business_details.name,
+                   'address': business_details.address,
+                   'phone_number': business_details.phone_number,
+                   'category': business_details.category,
+                   'logo': business_details.logo.path,
+                   'reviews': business_details.get_reviews()
+                   } for business_details in businesses]
+        return Response({'success': True, 'results': result}, status=status.HTTP_200_OK)
+
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field("category", True, description="one of the categories in the list: %s"%get_categories()),
+        ]
+    )
+
+
 class AddBusinessAPI(APIView):
     def post(self, request):
         """
@@ -93,7 +116,8 @@ class AddBusinessAPI(APIView):
             coreapi.Field("address", False, description="ex: 'Centre urbain nord'", schema=coreschema.String()),
             coreapi.Field("phone_number", False, description="ex: '21012345'"),
             coreapi.Field("category", False, description="Must be one of these " + str(get_categories())),
-            coreapi.Field("logo", False, description="64 encoded image, use this link to test image encoding manually: https://www.base64-image.de/ "),
+            coreapi.Field("logo", False,
+                          description="64 encoded image, use this link to test image encoding manually: https://www.base64-image.de/ "),
         ]
     )
 
