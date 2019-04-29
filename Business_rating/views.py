@@ -37,7 +37,7 @@ class BusinessDetailsAPI(APIView):
                   'address': business_details.address,
                   'phone_number': business_details.phone_number,
                   'category': business_details.category,
-                  'logo': business_details.logo.path,
+                  'logo': business_details.logo.name,
                   'reviews': business_details.get_reviews()
                   }
         return Response({'success': True, 'results': result}, status=status.HTTP_200_OK)
@@ -67,7 +67,7 @@ class BusinessesListAPI(APIView):
 
     schema = AutoSchema(
         manual_fields=[
-            coreapi.Field("category", True, description="one of the categories in the list: %s"%get_categories()),
+            coreapi.Field("category", False, description="one of the categories in the list: %s"%get_categories()),
         ]
     )
 
@@ -98,7 +98,7 @@ class AddBusinessAPI(APIView):
                 imgname = '%s.jpg' % name
                 file = File(open(fname, 'rb'))
                 business.logo.save(imgname, file)
-                os.remove(fname)
+                # os.remove(fname)
             except Exception as e:
                 print("Error occurred while processing logo, details: %s" % e)
                 pass
