@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Model, CASCADE
+from django.utils.timezone import now
 
 from Business_rating.constants import CATEGORIES
 
@@ -15,7 +16,8 @@ class Business(Model):
         return self.name
 
     def get_reviews(self):
-        return [{"stars": review.stars, "comment": review.comment, "reviewer": review.reviewer} for review in
+        return [{"stars": review.stars, "comment": review.comment, "reviewer": review.reviewer
+                 , "date": review.date} for review in
                 self.review_set.all()]
 
 
@@ -31,6 +33,7 @@ class Review(Model):
     comment = models.CharField(max_length=255, null=True, blank=True)
     business = models.ForeignKey(Business, on_delete=CASCADE)
     reviewer = models.CharField(max_length=255, null=True, blank=True)
+    date = models.DateTimeField(blank=True, null=True, default=now)
 
     def __str__(self):
         return str(self.id) + ' ' + str(self.business)
